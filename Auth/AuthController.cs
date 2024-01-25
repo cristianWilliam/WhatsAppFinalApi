@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using WhatsAppFinalApi.Users;
 // ReSharper disable SimplifyLinqExpressionUseAll
@@ -11,14 +12,23 @@ namespace WhatsAppFinalApi.Auth;
 [ApiController, Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
+    private readonly JwtSettingsOptions _jwtSettingsOptions;
+
+    public AuthController(JwtSettingsOptions jwtSettingsOptions)
+    {
+        _jwtSettingsOptions = jwtSettingsOptions;
+    }
+
     [HttpPost]
-    public IActionResult Login(AuthLoginRequest request)
+    public IActionResult Login(
+        AuthLoginRequest request)
     {
         if (!UserFakeDb.Users.Any(user => user.Id == request.UserId))
             return NotFound("User não encontrado!");
 
-        var byteSecret = Encoding.UTF8.GetBytes(AuthSettings.JwtSecret)
-            .ToArray();
+        var secretTeste = _jwtSettingsOptions.Secret;
+
+        var byteSecret = Encoding.UTF8.GetBytes(secretTeste!);
 
         var secretKey = new SigningCredentials(
             new SymmetricSecurityKey(byteSecret),

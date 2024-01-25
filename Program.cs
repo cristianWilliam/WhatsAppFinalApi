@@ -1,6 +1,7 @@
 using System.Diagnostics.SymbolStore;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using WhatsAppFinalApi.Auth;
 
@@ -40,6 +41,12 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = secretKey,
     };
 });
+
+builder.Services.Configure<JwtSettingsOptions>(
+    builder.Configuration.GetRequiredSection(JwtSettingsOptions.SessionName));
+
+builder.Services.AddSingleton(provider =>
+    provider.GetRequiredService<IOptions<JwtSettingsOptions>>().Value);
 
 var app = builder.Build();
 
