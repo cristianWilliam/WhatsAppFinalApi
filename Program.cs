@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using WhatsAppFinalApi.Auth;
+using WhatsAppFinalApi.Messages;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,17 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = secretKey,
     };
+
+    options.Events = new JwtBearerEvents()
+    {
+        OnMessageReceived = context =>
+        {
+            var token = context.Request.Query["access_token"];
+            context.Token ??= token;
+
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.Configure<JwtSettingsOptions>(
@@ -47,6 +59,8 @@ builder.Services.Configure<JwtSettingsOptions>(
 
 builder.Services.AddSingleton(provider =>
     provider.GetRequiredService<IOptions<JwtSettingsOptions>>().Value);
+
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -65,5 +79,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<MessageHub>("/api/message-hub");
 
 app.Run();

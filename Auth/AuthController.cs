@@ -28,7 +28,7 @@ public class AuthController : ControllerBase
 
         var secretTeste = _jwtSettingsOptions.Secret;
 
-        var byteSecret = Encoding.UTF8.GetBytes(secretTeste!);
+         var byteSecret = Encoding.UTF8.GetBytes(secretTeste!);
 
         var secretKey = new SigningCredentials(
             new SymmetricSecurityKey(byteSecret),
